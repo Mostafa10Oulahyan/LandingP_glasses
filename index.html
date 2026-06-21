@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/ndadr-removebg-preview.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#FAF8F5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0D0C0B" media="(prefers-color-scheme: dark)" />
+
+    <title>Crown Eye Optique — Luxury Eyewear, Crowned with Vision</title>
+    <meta
+      name="description"
+      content="Crown Eye Optique is a contemporary luxury eyewear house. Discover hand-finished sunglasses and optical frames crafted from premium acetate and Japanese titanium. Complimentary worldwide shipping."
+    />
+    <meta name="keywords" content="luxury eyewear, designer sunglasses, premium optical frames, acetate sunglasses, titanium glasses, Crown Eye Optique" />
+    <meta name="author" content="Crown Eye Optique" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Crown Eye Optique — Luxury Eyewear" />
+    <meta property="og:description" content="Hand-finished sunglasses and optical frames from a contemporary luxury eyewear house." />
+    <meta property="og:image" content="/ndadr-removebg-preview.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Theme bootstrap — set .dark before paint to avoid flash of wrong theme -->
+    <script>
+      (function () {
+        try {
+          var raw = localStorage.getItem('ceo-theme');
+          var t = raw ? JSON.parse(raw).state.theme : null;
+          if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          if (t === 'dark') document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,500&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-cream text-ink antialiased font-body">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

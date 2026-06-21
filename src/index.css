@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   Crown Eye Optique — design tokens
+   Neutral canvas is driven by CSS vars so .dark flips globally.
+   Brand colors (bordeaux / gold) are fixed and never invert.
+   ============================================================ */
+:root {
+  /* light theme neutral canvas (space-separated RGB for <alpha-value>) */
+  --c-cream: 250 248 245;
+  --c-bone: 242 238 231;
+  --c-sand: 232 224 212;
+  --c-beige: 214 200 178;
+  --c-ink: 23 20 19;
+  --c-char: 40 35 33;
+  --c-smoke: 104 96 91;
+
+  --grain: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+.dark {
+  --c-cream: 13 12 11;
+  --c-bone: 23 21 20;
+  --c-sand: 33 30 28;
+  --c-beige: 52 46 42;
+  --c-ink: 245 241 236;
+  --c-char: 226 220 214;
+  --c-smoke: 166 158 151;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Lenis drives scroll; keep native smooth off to avoid double-easing */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-feature-settings: 'ss01' on, 'cv11' on;
+  background: rgb(var(--c-cream));
+  color: rgb(var(--c-ink));
+  overflow-x: hidden;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* Selection — brand bordeaux */
+::selection {
+  background: #751F2B;
+  color: #FAF8F5;
+}
+
+/* Custom scrollbar — bordeaux */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: rgb(var(--c-bone)); }
+::-webkit-scrollbar-thumb { background: #751F2B; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #4C141C; }
+
+/* Display helpers */
+.font-display { font-family: 'Fraunces', serif; font-optical-sizing: auto; }
+.kerning-tight { letter-spacing: -0.04em; }
+
+/* Hide native cursor only when our custom cursor is active (fine pointers) */
+html.has-cursor,
+html.has-cursor * {
+  cursor: none !important;
+}
+@media (pointer: coarse) {
+  html.has-cursor,
+  html.has-cursor * { cursor: auto !important; }
+}
+
+/* Hairline gold underline accent */
+.gold-rule {
+  background: linear-gradient(90deg, transparent, #C3A056 20%, #C3A056 80%, transparent);
+  height: 1px;
+}
+
+/* Hover lift utility */
+.lift { transition: transform .6s cubic-bezier(.2,.7,.2,1), box-shadow .6s ease; }
+.lift:hover { transform: translateY(-4px); }
+
+/* Underline draw on hover */
+.link-underline { position: relative; display: inline-block; }
+.link-underline::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -2px;
+  width: 100%; height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform .6s cubic-bezier(.2,.7,.2,1);
+}
+.link-underline:hover::after { transform: scaleX(1); transform-origin: left; }
+
+/* Flat surface (NO glassmorphism per design restraints) — replaces former .glass.
+   Semi-opaque neutral + hairline border, no backdrop-blur. */
+.glass {
+  background: rgb(var(--c-cream) / 0.92);
+  border: 1px solid rgb(var(--c-ink) / 0.08);
+}
+
+/* The ONE allowed blur: navbar backdrop on scroll (max 12px) */
+.nav-blur {
+  background: rgb(var(--c-cream) / 0.72);
+  backdrop-filter: saturate(140%) blur(12px);
+  -webkit-backdrop-filter: saturate(140%) blur(12px);
+  border-bottom: 1px solid rgb(var(--c-ink) / 0.07);
+}
+
+/* Grain — barely-there texture */
+.grain::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--grain);
+  opacity: 0.03;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* SplitText reveal primitives (GSAP animates these) */
+.split-line { overflow: hidden; display: block; }
+.split-child { display: inline-block; will-change: transform; }
+
+/* Focus rings — bordeaux on light, gold on dark */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #751F2B;
+  border-radius: 3px;
+}
+.dark :focus-visible {
+  box-shadow: 0 0 0 2px #C3A056;
+}
+
+/* Reduced motion — neutralize transforms/animations globally as a backstop */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
