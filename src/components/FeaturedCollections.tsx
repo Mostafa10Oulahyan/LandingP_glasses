@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import SectionHeader from './SectionHeader';
+import SmartImage from './SmartImage';
 import { useGSAP } from '../hooks/useGSAP';
 import { scrollReveal } from '../animations/scrollReveal';
 import { useReducedMotion } from '../hooks/useReducedMotion';
@@ -74,11 +75,10 @@ export default function FeaturedCollections() {
               )}
             >
               <div className="aspect-[4/5] overflow-hidden">
-                <img
+                <SmartImage
                   src={c.image}
                   alt={`${c.name} collection — Crown Eye Optique`}
-                  className="h-full w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.06]"
-                  loading="lazy"
+                  className="duration-[1.2s] transition-transform ease-out group-hover:scale-[1.06]"
                 />
               </div>
               {c.dark && (

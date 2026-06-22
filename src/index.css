@@ -72,14 +72,42 @@ body {
 .font-display { font-family: 'Fraunces', serif; font-optical-sizing: auto; }
 .kerning-tight { letter-spacing: -0.04em; }
 
-/* Hide native cursor only when our custom cursor is active (fine pointers) */
+/* ------------------------------------------------------------------
+   Cursors — interactive elements get a real pointer affordance. On
+   fine-pointer devices the custom dot+ring (Cursor.tsx) takes over and
+   hides the native cursor; the ring grows on interactive elements.
+   These native rules remain the source of truth for touch/fallback.
+   ------------------------------------------------------------------ */
+button,
+a,
+[role='button'],
+[data-cursor],
+summary,
+label[for],
+select,
+.cursor-interactive {
+  cursor: pointer;
+}
+button:disabled,
+[aria-disabled='true'],
+button[disabled] {
+  cursor: not-allowed;
+}
+input:not([type='button']):not([type='submit']):not([type='checkbox']):not([type='radio']),
+textarea {
+  cursor: text;
+}
+
+/* Hide the native cursor only while the custom cursor is mounted (fine pointers) */
 html.has-cursor,
 html.has-cursor * {
   cursor: none !important;
 }
 @media (pointer: coarse) {
   html.has-cursor,
-  html.has-cursor * { cursor: auto !important; }
+  html.has-cursor * {
+    cursor: auto !important;
+  }
 }
 
 /* Hairline gold underline accent */

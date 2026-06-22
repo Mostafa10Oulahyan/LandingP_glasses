@@ -1,4 +1,4 @@
-import{n as i,j as e}from"./index-Ce_ZHfMi.js";import{I as t}from"./instagram-D6ZQlWRz.js";/**
+import{x as i,j as e}from"./index-CNdReczV.js";import{I as t}from"./instagram-CiNLdSDN.js";/**
  * @license lucide-react v0.426.0 - ISC
  *
  * This source code is licensed under the ISC license.

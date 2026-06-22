@@ -5,6 +5,7 @@ import { useGSAP } from '../hooks/useGSAP';
 import { textReveal } from '../animations/textReveal';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import MagneticButton from './MagneticButton';
+import SmartImage from './SmartImage';
 
 const HERO_IMG =
   'https://images.unsplash.com/photo-1577803645773-f96470509666?auto=format&fit=crop&w=1400&q=80';
@@ -117,11 +118,10 @@ export default function Hero() {
               transition={{ duration: 1.4, ease }}
               className="absolute right-0 top-0 aspect-[3/4] w-[78%] overflow-hidden rounded-[28px] bg-bone shadow-[0_30px_80px_-30px_rgba(14,13,11,0.45)]"
             >
-              <img
+              <SmartImage
                 src={HERO_IMG}
                 alt="Model wearing Crown Eye Optique acetate sunglasses"
-                className="h-full w-full object-cover"
-                loading="eager"
+                eager
               />
               <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between text-porcelain">
                 <div>
@@ -138,11 +138,10 @@ export default function Hero() {
               transition={{ duration: 1.2, ease, delay: 0.35 }}
               className="absolute bottom-0 left-0 aspect-[4/5] w-[58%] overflow-hidden rounded-[24px] bg-sand shadow-[0_24px_60px_-30px_rgba(14,13,11,0.4)]"
             >
-              <img
+              <SmartImage
                 src={HERO_ALT}
                 alt="Crown Eye Optique tortoise acetate sunglasses on linen"
-                className="h-full w-full object-cover"
-                loading="eager"
+                eager
               />
             </motion.div>
 

@@ -1,14 +1,29 @@
+import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Minus, Plus, ShoppingBag, Trash2, X } from 'lucide-react';
+import { ArrowRight, Loader2, Minus, Plus, ShoppingBag, Trash2, X } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
+import { useCheckoutStore } from '../store/checkoutStore';
 import { formatPrice } from '../types/product';
 import { useFocusTrap } from '../hooks/useFocusTrap';
+import SmartImage from './SmartImage';
 
 const ease = [0.2, 0.7, 0.2, 1] as const;
 
 export default function CartDrawer() {
   const { lines, isOpen, close, setQty, remove, subtotal, count } = useCartStore();
+  const openCheckout = useCheckoutStore((s) => s.open);
   const panelRef = useFocusTrap<HTMLDivElement>(isOpen, close);
+  const [checkout, setCheckout] = useState<'idle' | 'loading'>('idle');
+
+  const onCheckout = () => {
+    if (checkout !== 'idle') return;
+    setCheckout('loading');
+    setTimeout(() => {
+      openCheckout();
+      close();
+      setCheckout('idle');
+    }, 600);
+  };
 
   const total = subtotal();
   const items = count();
@@ -100,12 +115,7 @@ export default function CartDrawer() {
                         className="flex gap-4"
                       >
                         <div className="h-24 w-20 shrink-0 overflow-hidden rounded-xl bg-bone">
-                          <img
-                            src={l.product.image}
-                            alt={l.product.name}
-                            className="h-full w-full object-cover"
-                            loading="lazy"
-                          />
+                          <SmartImage src={l.product.image} alt={l.product.name} ratio="5/6" />
                         </div>
                         <div className="flex flex-1 flex-col">
                           <div className="flex items-start justify-between gap-2">
@@ -170,8 +180,22 @@ export default function CartDrawer() {
                   <span className="font-display text-2xl">{formatPrice(total)}</span>
                 </div>
                 <p className="mt-1 text-[11px] text-smoke">Taxes and shipping calculated at checkout.</p>
-                <button className="mt-4 w-full rounded-full bg-gold-400 py-4 text-[12px] uppercase tracking-widest2 text-gold-900 transition-colors hover:bg-gold-500">
-                  Proceed to checkout
+                <button
+                  onClick={onCheckout}
+                  disabled={checkout !== 'idle'}
+                  aria-live="polite"
+                  className="group mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-gold-400 py-4 text-[12px] uppercase tracking-widest2 text-gold-900 transition-all duration-300 hover:bg-gold-500 active:scale-[0.99] disabled:opacity-90"
+                >
+                  {checkout === 'loading' ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" /> Securing checkout…
+                    </>
+                  ) : (
+                    <>
+                      Proceed to checkout
+                      <ArrowRight size={15} className="transition-transform duration-300 group-hover:translate-x-1" />
+                    </>
+                  )}
                 </button>
                 <button
                   onClick={close}

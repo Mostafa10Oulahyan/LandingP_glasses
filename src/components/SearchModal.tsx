@@ -7,6 +7,7 @@ import { products } from '../data/products';
 import { formatPrice } from '../types/product';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 import { cn } from '../utils/cn';
+import SmartImage from './SmartImage';
 
 const ease = [0.2, 0.7, 0.2, 1] as const;
 const SUGGESTIONS = ['Sunglasses', 'Optical', 'Limited', 'Titanium', 'Acetate'];
@@ -136,7 +137,7 @@ export default function SearchModal() {
                         )}
                       >
                         <div className="h-16 w-14 shrink-0 overflow-hidden rounded-lg bg-bone">
-                          <img src={p.image} alt={p.name} className="h-full w-full object-cover" loading="lazy" />
+                          <SmartImage src={p.image} alt={p.name} ratio="14/16" />
                         </div>
                         <div className="flex-1">
                           <div className="font-display text-[18px] leading-tight">{p.name}</div>

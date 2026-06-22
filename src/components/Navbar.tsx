@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Menu, Moon, Search, ShoppingBag, Sun, User, X } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Heart, Menu, Moon, Search, ShoppingBag, Sun, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '../utils/cn';
 import { useThemeStore } from '../store/themeStore';
 import { useCartStore } from '../store/cartStore';
+import { useWishlistStore } from '../store/wishlistStore';
 import { useSearchStore } from '../store/searchStore';
 
 const links = [
@@ -22,6 +24,8 @@ export default function Navbar() {
   const toggleTheme = useThemeStore((s) => s.toggle);
   const openCart = useCartStore((s) => s.open);
   const cartCount = useCartStore((s) => s.lines.reduce((n, l) => n + l.qty, 0));
+  const openWishlist = useWishlistStore((s) => s.open);
+  const wishCount = useWishlistStore((s) => s.ids.length);
   const openSearch = useSearchStore((s) => s.open);
 
   useEffect(() => {
@@ -30,6 +34,19 @@ export default function Navbar() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  // Lock background scroll + close on Escape while the mobile menu is open
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
 
   return (
     <header
@@ -70,7 +87,7 @@ export default function Navbar() {
               alt="Crown Eye Optique"
               className={cn(
                 'w-auto transition-all duration-500 dark:brightness-0 dark:invert',
-                scrolled ? 'h-12' : 'h-16'
+                scrolled ? 'h-16' : 'h-20'
               )}
             />
           </a>
@@ -85,23 +102,46 @@ export default function Navbar() {
               ))}
             </nav>
             <div className="flex items-center gap-4 text-ink/80">
-              <button onClick={openSearch} aria-label="Search" className="hover:text-ink">
+              <button
+                onClick={openSearch}
+                aria-label="Search"
+                className="grid h-9 w-9 place-items-center rounded-full transition-colors hover:bg-ink/5 hover:text-ink"
+              >
                 <Search size={18} />
               </button>
               <button
                 onClick={toggleTheme}
                 aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-                className="hover:text-ink"
+                className="grid h-9 w-9 place-items-center rounded-full transition-colors hover:bg-ink/5 hover:text-ink"
               >
                 {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
               </button>
-              <button aria-label="Account" className="hidden hover:text-ink md:inline">
-                <User size={18} />
+              <button
+                onClick={openWishlist}
+                aria-label={wishCount > 0 ? `Wishlist, ${wishCount} saved` : 'Wishlist'}
+                className="relative hidden h-9 w-9 place-items-center rounded-full transition-colors hover:bg-ink/5 hover:text-ink md:grid"
+              >
+                <Heart size={18} className={wishCount > 0 ? 'fill-bordeaux-700 text-bordeaux-700' : ''} />
+                {wishCount > 0 && (
+                  <span
+                    key={wishCount}
+                    className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 animate-badge-pop place-items-center rounded-full bg-bordeaux-700 px-1 text-[9px] font-medium text-white"
+                  >
+                    {wishCount}
+                  </span>
+                )}
               </button>
-              <button onClick={openCart} aria-label="Open bag" className="relative hover:text-ink">
+              <button
+                onClick={openCart}
+                aria-label={cartCount > 0 ? `Shopping bag, ${cartCount} items` : 'Shopping bag'}
+                className="relative grid h-9 w-9 place-items-center rounded-full transition-colors hover:bg-ink/5 hover:text-ink"
+              >
                 <ShoppingBag size={18} />
                 {cartCount > 0 && (
-                  <span className="absolute -right-2 -top-2 grid h-4 min-w-4 place-items-center rounded-full bg-bordeaux-700 px-1 text-[9px] font-medium text-white">
+                  <span
+                    key={cartCount}
+                    className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 animate-badge-pop place-items-center rounded-full bg-bordeaux-700 px-1 text-[9px] font-medium text-white"
+                  >
                     {cartCount}
                   </span>
                 )}
@@ -111,46 +151,85 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile drawer */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-cream px-6 py-8 md:hidden"
-          >
-            <div className="flex items-center justify-between">
-              <img
-                src="/ndadr-removebg-preview.png"
-                alt="Crown Eye Optique"
-                className="h-12 w-auto dark:brightness-0 dark:invert"
-              />
-              <button onClick={() => setOpen(false)} aria-label="Close menu">
-                <X />
-              </button>
-            </div>
-            <nav className="mt-16 flex flex-col gap-8 font-display text-4xl">
-              {links.map((l, i) => (
-                <motion.a
-                  key={l.label}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.05 * i, duration: 0.5 }}
-                  href={l.href}
+      {/* Mobile drawer — portaled to <body> so it escapes the sticky header's
+          stacking context (otherwise <main> paints over it and it looks transparent). */}
+      {createPortal(
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Menu"
+              className="fixed inset-0 z-[130] flex flex-col bg-cream px-6 py-7 text-ink md:hidden"
+            >
+              <div className="flex items-center justify-between">
+                <img
+                  src="/ndadr-removebg-preview.png"
+                  alt="Crown Eye Optique"
+                  className="h-12 w-auto dark:brightness-0 dark:invert"
+                />
+                <button
                   onClick={() => setOpen(false)}
+                  aria-label="Close menu"
+                  className="grid h-10 w-10 place-items-center rounded-full hover:bg-bone"
                 >
-                  {l.label}
-                </motion.a>
-              ))}
-            </nav>
-            <div className="absolute bottom-10 left-6 right-6 flex justify-between text-[11px] uppercase tracking-widest2 text-smoke">
-              <span>EN · USD</span>
-              <span>hello@crowneyeoptique.com</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                  <X />
+                </button>
+              </div>
+
+              <nav className="mt-14 flex flex-col gap-7 font-display text-4xl">
+                {links.map((l, i) => (
+                  <motion.a
+                    key={l.label}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.05 * i, duration: 0.5 }}
+                    href={l.href}
+                    onClick={() => setOpen(false)}
+                    className="w-fit"
+                  >
+                    {l.label}
+                  </motion.a>
+                ))}
+              </nav>
+
+              {/* Quick actions */}
+              <div className="mt-auto flex flex-col gap-3">
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setOpen(false);
+                      openWishlist();
+                    }}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-full border border-ink/15 py-3.5 text-[11px] uppercase tracking-widest2 transition-colors hover:border-ink/40"
+                  >
+                    <Heart size={15} className={wishCount > 0 ? 'fill-bordeaux-700 text-bordeaux-700' : ''} />
+                    Wishlist{wishCount > 0 ? ` (${wishCount})` : ''}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setOpen(false);
+                      openCart();
+                    }}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-full bg-bordeaux-700 py-3.5 text-[11px] uppercase tracking-widest2 text-white transition-colors hover:bg-bordeaux-800"
+                  >
+                    <ShoppingBag size={15} /> Bag{cartCount > 0 ? ` (${cartCount})` : ''}
+                  </button>
+                </div>
+                <div className="flex justify-between pt-3 text-[11px] uppercase tracking-widest2 text-smoke">
+                  <span>EN · USD</span>
+                  <span>hello@crowneyeoptique.com</span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </header>
   );
 }

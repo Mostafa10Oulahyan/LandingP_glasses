@@ -13,6 +13,8 @@ import Cursor from './components/Cursor';
 import NoiseOverlay from './components/NoiseOverlay';
 import PageReveal from './components/PageReveal';
 import CartDrawer from './components/CartDrawer';
+import CheckoutModal from './components/CheckoutModal';
+import WishlistDrawer from './components/WishlistDrawer';
 import QuickViewModal from './components/QuickViewModal';
 import SearchModal from './components/SearchModal';
 import WhatsAppButton from './components/WhatsAppButton';
@@ -72,6 +74,8 @@ export default function App() {
 
       {/* Overlays */}
       <CartDrawer />
+      <CheckoutModal />
+      <WishlistDrawer />
       <QuickViewModal />
       <SearchModal />
 

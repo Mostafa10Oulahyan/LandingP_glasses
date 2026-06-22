@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, Heart, X } from 'lucide-react';
+import { Check, Heart, Loader2, X } from 'lucide-react';
 import { useQuickViewStore } from '../store/quickViewStore';
 import { useCartStore } from '../store/cartStore';
 import { useWishlistStore } from '../store/wishlistStore';
@@ -8,6 +8,7 @@ import { getProduct } from '../data/products';
 import { formatPrice } from '../types/product';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 import { cn } from '../utils/cn';
+import SmartImage from './SmartImage';
 
 const ease = [0.2, 0.7, 0.2, 1] as const;
 
@@ -15,8 +16,9 @@ export default function QuickViewModal() {
   const openId = useQuickViewStore((s) => s.openId);
   const close = useQuickViewStore((s) => s.close);
   const add = useCartStore((s) => s.add);
-  const wishHas = useWishlistStore((s) => s.has);
   const wishToggle = useWishlistStore((s) => s.toggle);
+  // Select a derived boolean (not the `has` fn) so the heart re-renders on toggle.
+  const wished = useWishlistStore((s) => (openId ? s.ids.includes(openId) : false));
 
   const product = openId ? getProduct(openId) : undefined;
   const panelRef = useFocusTrap<HTMLDivElement>(!!product, close);
@@ -24,23 +26,29 @@ export default function QuickViewModal() {
   const [color, setColor] = useState<string>('');
   const [size, setSize] = useState<string>('');
   const [activeImg, setActiveImg] = useState(0);
-  const [added, setAdded] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'adding' | 'added'>('idle');
+  const timer = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     if (product) {
       setColor(product.colors[0]);
       setSize(product.sizes?.[0] ?? 'One size');
       setActiveImg(0);
-      setAdded(false);
+      setStatus('idle');
     }
   }, [product]);
+
+  useEffect(() => () => clearTimeout(timer.current), []);
 
   const gallery = product?.images?.length ? product.images : product ? [product.image] : [];
 
   const onAdd = () => {
-    if (!product) return;
-    add(product, { color, size });
-    setAdded(true);
+    if (!product || status !== 'idle') return;
+    setStatus('adding');
+    timer.current = setTimeout(() => {
+      add(product, { color, size });
+      setStatus('added');
+    }, 420);
   };
 
   return (
@@ -57,7 +65,7 @@ export default function QuickViewModal() {
           />
           <motion.div
             ref={panelRef}
-            className="relative grid w-full max-w-4xl grid-cols-1 overflow-hidden rounded-[24px] bg-cream text-ink shadow-2xl md:grid-cols-2"
+            className="relative grid max-h-[90vh] w-full max-w-3xl grid-cols-1 overflow-y-auto rounded-[24px] bg-cream text-ink shadow-2xl md:max-h-[86vh] md:grid-cols-2 md:overflow-hidden"
             initial={{ opacity: 0, scale: 0.96, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 16 }}
@@ -75,12 +83,12 @@ export default function QuickViewModal() {
             <div className="flex flex-col gap-3 bg-bone p-4">
               <motion.div
                 layoutId={`product-${product.id}`}
-                className="aspect-[4/5] w-full overflow-hidden rounded-2xl bg-sand"
+                className="aspect-square w-full overflow-hidden rounded-2xl bg-sand md:aspect-[4/5]"
               >
-                <img
+                <SmartImage
                   src={gallery[activeImg]}
                   alt={`${product.name} — ${product.category}`}
-                  className="h-full w-full object-cover"
+                  eager
                 />
               </motion.div>
               {gallery.length > 1 && (
@@ -90,12 +98,13 @@ export default function QuickViewModal() {
                       key={g}
                       onClick={() => setActiveImg(i)}
                       aria-label={`View image ${i + 1}`}
+                      aria-pressed={i === activeImg}
                       className={cn(
                         'h-16 w-14 overflow-hidden rounded-lg ring-1 transition',
                         i === activeImg ? 'ring-bordeaux-700' : 'ring-ink/10 hover:ring-ink/30'
                       )}
                     >
-                      <img src={g} alt="" className="h-full w-full object-cover" />
+                      <SmartImage src={g} alt="" ratio="14/16" />
                     </button>
                   ))}
                 </div>
@@ -103,13 +112,13 @@ export default function QuickViewModal() {
             </div>
 
             {/* Details */}
-            <div className="flex flex-col p-6 md:p-8">
+            <div className="flex flex-col p-6 md:p-7">
               <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest2 text-smoke">
                 <span>{product.category}</span>
                 <span className="h-[3px] w-[3px] rounded-full bg-gold-400" />
                 <span>N°{product.no}</span>
               </div>
-              <h2 className="mt-2 font-display text-[34px] leading-none">{product.name}</h2>
+              <h2 className="mt-2 font-display text-[28px] leading-none md:text-[30px]">{product.name}</h2>
               <div className="mt-3 font-display text-2xl text-bordeaux-700 dark:text-gold-400">
                 {formatPrice(product.price)}
               </div>
@@ -161,29 +170,37 @@ export default function QuickViewModal() {
               <div className="mt-auto flex items-center gap-3 pt-8">
                 <button
                   onClick={onAdd}
+                  disabled={status === 'adding'}
+                  aria-live="polite"
                   className={cn(
-                    'flex flex-1 items-center justify-center gap-2 rounded-full py-4 text-[12px] uppercase tracking-widest2 transition-colors',
-                    added
+                    'flex flex-1 items-center justify-center gap-2 rounded-full py-4 text-[12px] uppercase tracking-widest2 transition-all duration-300 active:scale-[0.98]',
+                    status === 'added'
                       ? 'bg-gold-400 text-gold-900 hover:bg-gold-500'
                       : 'bg-bordeaux-700 text-white hover:bg-bordeaux-800'
                   )}
                 >
-                  {added ? (
-                    <>
-                      <Check size={15} /> Added to bag
-                    </>
-                  ) : (
-                    <>Add to bag — {formatPrice(product.price)}</>
-                  )}
+                  {status === 'adding' && <Loader2 size={15} className="animate-spin" />}
+                  {status === 'added' && <Check size={15} className="animate-pop-in" />}
+                  {status === 'adding'
+                    ? 'Adding…'
+                    : status === 'added'
+                    ? 'Added to bag'
+                    : `Add to bag — ${formatPrice(product.price)}`}
                 </button>
                 <button
                   onClick={() => wishToggle(product.id)}
-                  aria-label="Toggle wishlist"
-                  className="grid h-[52px] w-[52px] place-items-center rounded-full border border-ink/15 hover:border-ink/40"
+                  aria-label={wished ? 'Remove from wishlist' : 'Add to wishlist'}
+                  aria-pressed={wished}
+                  className={cn(
+                    'grid h-[52px] w-[52px] place-items-center rounded-full border transition-all duration-300 active:scale-95',
+                    wished
+                      ? 'border-bordeaux-700 bg-bordeaux-700 text-white'
+                      : 'border-ink/15 text-ink hover:border-ink/40'
+                  )}
                 >
                   <Heart
                     size={18}
-                    className={cn(wishHas(product.id) && 'fill-bordeaux-700 text-bordeaux-700')}
+                    className={cn('transition-colors', wished && 'animate-pop-in fill-white')}
                   />
                 </button>
               </div>

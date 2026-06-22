@@ -1,0 +1,11 @@
+import{x as d,r as o,u as n,a as l,j as e,y as u,T as p}from"./index-CNdReczV.js";import{s as x}from"./scrollReveal-DmoLLfCd.js";/**
+ * @license lucide-react v0.426.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const h=d("Gem",[["path",{d:"M6 3h12l4 6-10 13L2 9Z",key:"1pcd5k"}],["path",{d:"M11 3 8 9l4 13 4-13-3-6",key:"1fcu3u"}],["path",{d:"M2 9h20",key:"16fsjt"}]]);/**
+ * @license lucide-react v0.426.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const m=d("RefreshCcw",[["path",{d:"M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8",key:"14sxne"}],["path",{d:"M3 3v5h5",key:"1xhq8a"}],["path",{d:"M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16",key:"1hlbsb"}],["path",{d:"M16 16h5v5",key:"ccwih5"}]]),g=[{icon:u,label:"Secure Checkout",sub:"Encrypted, PCI-DSS payments"},{icon:p,label:"Free Shipping",sub:"Complimentary over $180"},{icon:h,label:"Premium Materials",sub:"Acetate & Japanese titanium"},{icon:m,label:"30-Day Returns",sub:"No-question, full refund"}];function k(){const s=o.useRef(null),r=o.useRef(null),a=n();return l(()=>{r.current&&x(r.current,":scope > *",{reduced:a,y:30,stagger:.1})},{scope:s,dependencies:[a]}),e.jsx("section",{ref:s,className:"bg-cream py-[64px] md:py-[120px]",children:e.jsx("div",{className:"mx-auto max-w-[1500px] px-6 md:px-10",children:e.jsx("div",{ref:r,className:"grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 md:gap-6",children:g.map(({icon:c,label:t,sub:i})=>e.jsxs("div",{className:"group flex flex-col items-start gap-4 rounded-2xl border border-bordeaux-100 bg-cream p-7 transition-colors duration-500 hover:border-bordeaux-300 dark:border-ink/10 dark:hover:border-gold-400/30",children:[e.jsx("span",{className:"grid h-12 w-12 place-items-center rounded-full bg-bordeaux-50 text-bordeaux-700 transition-colors duration-500 group-hover:bg-bordeaux-700 group-hover:text-white dark:bg-ink/10 dark:text-gold-400",children:e.jsx(c,{size:20,strokeWidth:1.6})}),e.jsxs("div",{children:[e.jsx("h3",{className:"font-display text-[22px] leading-tight",children:t}),e.jsx("p",{className:"mt-1.5 text-[13px] text-smoke",children:i})]})]},t))})})})}export{k as default};
